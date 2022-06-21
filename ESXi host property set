@@ -1,4 +1,4 @@
-{
+
       "esxRedtrunk": {
         "200": {
           "subnet": "1.1.200.0/24",
@@ -44,4 +44,4 @@
           "description": "mgmtVN",
           "gateway": "1.1.90.1/24"
         }
-      }
+      
