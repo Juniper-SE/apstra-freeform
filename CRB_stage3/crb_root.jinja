@@ -1,0 +1,51 @@
+{# For this use case, we will re-use the default junos_configuration.jinja and
+incrementally add CRB reference design on top. The existing configuration jinja
+handles boilerplate system configuration such as interface breakouts, system
+hostname, and some basic IP address assignment. Any further modification is
+overwritten on specific stanzas based on property set configuration. #}
+
+
+{%- include "junos_configuration.jinja" %}
+
+{# Note that the 'protocols' stanza can be safely rendered multiple times.
+
+When the Apstra device agent for Junos executes it uses the 'load merge terminal'
+syntax. This means that all of the 'protocol' stanzas that could be created from
+multiple jinja files will effectively merge into the same config.
+
+This encourages modularity of the jinja files to specific functions, and a user is
+not bound to create one jinja file per top level key. #}
+
+{# crb_bgp handles the BGP overlay and underlay configuration.
+  This makes use of the 'bgp_asns', 'loopbacks' property sets, and iterates
+  through the built-in 'interfaces' dictionary.
+#}
+{% include 'crb_bgp.jinja' %}
+
+{# crb_routing_options handles BGP ASN and router-IDs from property-sets.
+   this makes use of the 'loopbacks' and 'bgp_asns' property set. #}
+{% include 'crb_routing_options.jinja' %}
+
+{# crb_vlans.jinja handles vxlan & vlan instantiations, as well as
+   EVPN VXLAN configuration. This makes use of the example property set 'vlans'. #}
+{% include 'crb_vlans.jinja' %}
+
+{# crb_switch_options.jinja handles the 'switch-options' stanza. #}
+{% include 'crb_switch_options.jinja' %}
+
+{# crb_routing_instances.jinja handles routing instances and bgp config
+   within each instance.
+   This will make use of multiple property sets 'vlans', 'routing_instances'. #}
+{% include 'crb_routing_instances.jinja' %}
+
+{# crb_subinterfaces.jinja handles additional logical subinterfaces for peering
+   to an external router using vlan tagging, using the 'subinterfaces' property set. #}
+{% include 'crb_subinterfaces.jinja' %}
+
+{# crb_esi.jinja allocates simple ESI MAC addresses to aggregate ethernet links
+   from the esi property set. #}
+{% include 'crb_esi.jinja' %}
+
+{# crb_policy_options.jinja renders BGP-specific policy options for route
+   redistribution. #}
+{% include 'crb_policy_options.jinja' %}
