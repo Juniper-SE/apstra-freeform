@@ -1,0 +1,102 @@
+{# The CRB example design requires an IPv4 addressed underlay between spine & leaf
+   and an EVPN overlay session between spine & leaf loopbacks.
+#}
+protocols {
+    bgp {
+        group underlay {
+            type external;
+            hold-time 10;
+            export BGP-AOS-Policy;
+            multipath {
+                multiple-as;
+            }
+{# This loop walks the 'interfaces' dictionary.  All underlay interfaces which
+   contain the link tag 'bgp' should render underlay configuration.  This loop also
+   makes use of the 'neighbor_interfaces' key in the interfaces dict as well as
+   the 'bgp_asns' property set.
+
+   This example loopbacks property set is in the format:
+    {
+        "spine1": "192.168.1.0",
+        "spine2": "192.168.1.1",
+        "leaf1": "192.168.1.2",
+        "leaf2": "192.168.1.3",
+        "leaf3": "192.168.1.4",
+    }
+
+    The example bgp_asns property set is in the format:
+    {
+        "spine1": 64510,
+        "spine2": 64511,
+        "leaf1": 64512,
+        "leaf2": 64513,
+        "leaf3": 64514,
+    }
+#}
+{% for interface in interfaces.itervalues() if 'bgp' in interface.link_tags and interface.ipv4_address %}
+    {% set neighbor_interface = interface.neighbor_interface %}
+    {% set neighbor_hostname = neighbor_interface.system_hostname %}
+    {% set neighbor_asn = property_sets.get('bgp_asns', {}).get(neighbor_hostname) %}
+    {# Defend against invalid configuration rendering in the event the remote interface
+       does not have an IP address assigned, or the remote ASN is missing from the
+       'bgp_asns' property set.
+       If this jinja renders empty values such as 'peer-as ;', this would result
+       in a deployment failure raised by a junos commit-check. #}
+    {% if not neighbor_interface.ipv4_address or not neighbor_asn %}
+        {% continue %}
+    {% endif %}
+            neighbor {{ neighbor_interface.ipv4_address }} {
+                description facing_{{ neighbor_hostname }}-underlay;
+                local-address {{ interface.ipv4_address }};
+                family inet {
+                    unicast;
+                }
+                peer-as {{ neighbor_asn }};
+                bfd-liveness-detection {
+                    minimum-interval 1000;
+                    multiplier 3;
+                }
+            }
+{% endfor %}{# interface in interfaces.itervalues() if 'bgp' in interface.link_tags and interface.ipv4_addr #}
+            vpn-apply-export;
+        }
+        group overlay {
+            type external;
+            hold-time 10;
+            multipath {
+                multiple-as;
+            }
+            {# EVPN neighbors peer between loopbacks, which are routed across
+               point-to-point underlay links. The TTL for those bgp neighbors
+               must be set accordingly. #}
+            multihop {
+                ttl 2;
+            }
+{# Peer between spine & leaf loopback IP addresses, which are described in the 'loopbacks' property set. #}
+{% set loopback = property_sets.get('loopbacks', {}).get(hostname) %}
+{% for system_name, loopback_ip in function.sorted_dict(property_sets['loopbacks']) if system_name != hostname %}
+    {# Only allow a leaf to peer EVPN overlay with a spine #}
+    {% if 'leaf' in system_tags and 'spine' not in system_name %}
+        {# 'continue' will exit this for loop and continue to the next
+            iteration without executing any more code below within the block. #}
+        {% continue %}
+    {# Only allow a spine to peer EVPN overlay with a leaf #}
+    {% elif 'spine' in system_tags and 'leaf' not in system_name %}
+        {% continue %}
+    {% endif %}
+    {% set neighbor_asn = property_sets.get('bgp_asns', {}).get(system_name) %}
+    {% if loopback and neighbor_asn %}
+            neighbor {{ loopback_ip }} {
+                description facing_{{ system_name }}-overlay;
+                local-address {{ loopback }};
+                family evpn {
+                    signaling;
+                }
+                peer-as {{ neighbor_asn }};
+            }
+    {% endif %}
+{% endfor %}
+            vpn-apply-export;
+        }
+    }
+}

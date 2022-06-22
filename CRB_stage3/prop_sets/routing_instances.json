@@ -1,0 +1,20 @@
+{
+  "blue": {
+    "vrf_name": "blue",
+    "vxlan_id": 20002,
+    "vlan_id": 202,
+    "systems": {
+      "spine1": {},
+      "spine2": {}
+    }
+  },
+  "red": {
+    "vrf_name": "red",
+    "vxlan_id": 20001,
+    "vlan_id": 201,
+    "systems": {
+      "spine1": {},
+      "spine2": {}
+    }
+  }
+}
