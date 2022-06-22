@@ -5,7 +5,7 @@
 {% if property_sets.overlaybgp.model is defined and property_sets.overlaybgp.model == 'crb' %}
 protocols {
     bgp {
-  {% if property_sets.nodetags[hostname] == 'spine' %}
+  {% if property_sets.noderole[hostname] == 'spine' %}
        group RR-CLIENTS {
          family evpn {
             signaling;
@@ -15,7 +15,7 @@ protocols {
          local-address {{ property_sets.fabricbgp[hostname].rid }};
          cluster {{ property_sets.fabricbgp[hostname].rid }};
     {% for nodes,device in property_sets.fabricbgp.items() %}
-      {% if nodes != hostname and property_sets.nodetags[nodes] != 'spine' %}
+      {% if nodes != hostname and property_sets.noderole[nodes] != 'spine' %}
          neighbor {{device.rid}};
       {% else %}
       {% endif %}
@@ -30,7 +30,7 @@ protocols {
          type internal;
          local-address {{ property_sets.fabricbgp[hostname].rid }};
     {% for nodes,device in property_sets.fabricbgp.items() %}
-      {% if nodes != hostname and property_sets.nodetags[nodes] != 'leaf' %}
+      {% if nodes != hostname and property_sets.noderole[nodes] != 'leaf' %}
          neighbor {{device.rid}};
       {% else %}
       {% endif %}
