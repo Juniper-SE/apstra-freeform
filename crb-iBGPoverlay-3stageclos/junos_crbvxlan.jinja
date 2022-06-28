@@ -44,6 +44,10 @@ interfaces {
            interface-mode access;
           {% for vlanlist in iflist.vlans %}
            vlan members {{ vlanlist }};
+           {% if vlanlist not in vlanlst %}
+             {%- do vlanlst.append(vlanlist) -%}
+           {% else %}
+           {% endif %}
           {% endfor %}
          }
        }
