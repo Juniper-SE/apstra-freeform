@@ -73,6 +73,7 @@ j2 templates
 
 - junos_underlaybgp.jinja
 - junos_overlaycrb.jinja
+- junos_crbvxlan.jinja
 
 
 : Updates to be added to main jinja :
