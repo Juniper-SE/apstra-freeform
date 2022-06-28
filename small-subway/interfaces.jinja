@@ -1,0 +1,20 @@
+{% set this_router=hostname %}
+interfaces {
+{% for interface_name, iface in interfaces.iteritems() %}
+    replace: {{ interface_name }} {
+      unit 0 {
+        description "{{iface['description']}}";
+        family inet {
+          address {{iface['ipv4_address']}}/{{iface['ipv4_prefixlen']}};
+        }
+      }
+    }
+{% endfor %}
+    replace: lo0 {
+      unit 0 {
+          family inet {
+              address {{ property_sets.data[this_router]['loopback'] }}/32;
+          }
+      }
+   }
+}
