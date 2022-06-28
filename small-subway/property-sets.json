@@ -1,0 +1,26 @@
+{
+    "bond-street": {
+      "asn": 47,
+      "loopback": "10.0.0.2"
+    },
+    "green-park": {
+      "asn": 86,
+      "loopback": "10.0.0.4"
+    },
+    "tottenham-court-road": {
+      "asn": 48,
+      "loopback": "10.0.0.3"
+    },
+    "leicester-square": {
+      "asn": 137,
+      "loopback": "10.0.0.5"
+    },
+    "piccadilly-circus": {
+      "asn": 23,
+      "loopback": "10.0.0.1"
+    },
+    "oxford-circus": {
+      "asn": 22,
+      "loopback": "10.0.0.0"
+    }
+  }
