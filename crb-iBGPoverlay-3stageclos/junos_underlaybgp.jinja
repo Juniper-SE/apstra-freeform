@@ -12,6 +12,13 @@ protocols {
          tcp-mss 4000;
          type external;
          export UNDERLAY-EXPORT;
+         multipath {
+           multiple-as;
+         }
+         bfd-liveness-detection {
+            minimum-interval 1000;
+            multiplier 3;
+         }
          local-as {{ property_sets.fabricbgp[hostname].localas }};
  {% for intf,iface in interfaces.items() %}
    {% if iface.role == 'internal' %}

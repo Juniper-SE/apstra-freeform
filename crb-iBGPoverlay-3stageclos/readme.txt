@@ -71,147 +71,13 @@ name: overlaybgp
 j2 templates
 ------------
 
-name: junos_underlaybgp.jinja
-///////////////////////////////////////////////////////////////////////////
-
-{# Contributor: Usman Latif #}
-{# Juniper Networks PS      #}
-{# June, 2022               #}
-{#                          #}
-{% if property_sets.fabricbgp[hostname] is defined %}
-protocols {
-    bgp {
-       group UNDERLAY {
-         family inet {
-            unicast;
-         }
-         tcp-mss 4000;
-         type external;
-         export UNDERLAY-EXPORT;
-         multipath {
-           multiple-as;
-         }
-         bfd-liveness-detection {
-            minimum-interval 1000;
-            multiplier 3;
-         }
-         local-as {{ property_sets.fabricbgp[hostname].localas }};
- {% for intf,iface in interfaces.items() %}
-   {% if iface.role == 'internal' %}
-         neighbor {{iface.neighbor_interface.ipv4_address}} {
-         description "bgp to {{iface.neighbor_interface.system_hostname}}";
-         peer-as {{ property_sets.fabricbgp[iface.neighbor_interface.system_hostname].localas }};
-         }
-   {% else %}
-   {% endif %}
- {% endfor %}
-       }
-    }   
-}
-policy-options {
-  policy-statement UNDERLAY-EXPORT {
-    term 10 {
-      from {
-        protocol direct;
-        route-filter 0/0 prefix-length-range /32-/32;
-      }
-      then accept;
-    }
-  }
-}
-{% else %}
-{% endif %}
-
-///////////////////////////////////////////////////////////////////////////
+- junos_underlaybgp.jinja
+- junos_overlaycrb.jinja
 
 
+: Updates to be added to main jinja :
 
-name: junos_overlaycrb.jinja
-///////////////////////////////////////////////////////////////////////////
-{# Contributor: Usman Latif #}
-{# Juniper Networks PS      #}
-{# June, 2022               #}
-{#                          #}
-{% if property_sets.overlaybgp.model is defined and property_sets.overlaybgp.model == 'crb' %}
-protocols {
-    bgp {
-  {% if property_sets.noderole[hostname] == 'spine' %}
-       group RR-CLIENTS {
-         family evpn {
-            signaling;
-         }
-         tcp-mss 4000;
-         type internal;
-         bfd-liveness-detection {
-            minimum-interval 3000;
-            multiplier 3;
-         }
-         local-address {{ property_sets.fabricbgp[hostname].rid }};
-         cluster {{ property_sets.fabricbgp[hostname].rid }};
-    {% for nodes,device in property_sets.fabricbgp.items() %}
-      {% if nodes != hostname and property_sets.noderole[nodes] != 'spine' %}
-         neighbor {{device.rid}};
-      {% else %}
-      {% endif %}
-    {% endfor %}
-       }
-  {% else %}     
-       group RR {
-         family evpn {
-            signaling;
-         }
-         tcp-mss 4000;
-         type internal;
-         local-address {{ property_sets.fabricbgp[hostname].rid }};
-    {% for nodes,device in property_sets.fabricbgp.items() %}
-      {% if nodes != hostname and property_sets.noderole[nodes] != 'leaf' %}
-         neighbor {{device.rid}};
-      {% else %}
-      {% endif %}
-    {% endfor %}
-       }
-  {% endif %}
-    }
-}
-interfaces {
-  lo0 {
-    unit 0 {
-      family inet {
-        address {{ property_sets.fabricbgp[hostname].rid }}/32;
-      }
-    }
-  }
-}
-routing-options {
-  router-id {{ property_sets.fabricbgp[hostname].rid }};
-  autonomous-system {{ property_sets.overlaybgp.bgpasn }};
-  forwarding-table {
-    export PFE-LB;
-    ecmp-fast-reroute;
-    chained-composite-next-hop {
-        ingress {
-          evpn;                   
-        }
-    }
-  }
-}
-policy-options {
-  policy-statement PFE-LB {
-    then {
-      load-balance per-packet;
-    }
-  }
-}
-{% else %}
-{% endif %}
-
-///////////////////////////////////////////////////////////////////////////
-
-
-
-Updates to main jinja:
-
-name: junos_overlaycrb.jinja
+name: junos_configuration.jinja
 ///////////////////////////////////////////////////////////////////////////
 {% block underlaybgp %}
 {%- include "junos_underlaybgp.jinja" %}
@@ -220,6 +86,10 @@ name: junos_overlaycrb.jinja
 {% block overlaycrb %}
 {%- include "junos_overlaycrb.jinja" %}
 {% endblock overlaycrb %}
+
+{% block crbvxlan %}
+{%- include "junos_crbvxlan.jinja" %}
+{% endblock crbvxlan %}
 ///////////////////////////////////////////////////////////////////////////
 
 
