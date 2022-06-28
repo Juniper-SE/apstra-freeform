@@ -1,0 +1,90 @@
+{# Contributor: Usman Latif #}
+{# Juniper Networks PS      #}
+{# June, 2022               #}
+{#                          #}
+{% if property_sets.crb_vxlan is defined and property_sets.overlaybgp.model == 'crb' %}
+ {% for nodes,ifdetail in property_sets.crb_vxlan.items() %}
+  {% if nodes == hostname %}
+  {%- set vlanlst = [] -%}
+interfaces {
+   {% for iflist in ifdetail %}
+     {{ iflist.ifname }} {
+       {% if iflist.lagesi is defined %}
+       esi { 
+         {{ iflist.lagesi }};
+         all-active;
+       }
+       aggregated-ether-options {
+         lacp {
+           active;
+           system-id {{ iflist.sysid }};
+         }
+       }
+       {% endif %}
+       {% if iflist.mode == "lagmbr" %}
+       gigether-options {
+         802.3ad {{ iflist.lagif }};
+       }
+       {% elif iflist.mode == "trunk" %}
+       unit 0 {
+         family ethernet-switching {
+           interface-mode trunk;
+          {% for vlanlist in iflist.vlans %}
+           vlan members {{ vlanlist }};
+           {% if vlanlist not in vlanlst %}
+             {%- do vlanlst.append(vlanlist) -%}
+           {% else %}
+           {% endif %}
+          {% endfor %}
+         }
+       }
+       {% elif iflist.mode == "access" %}
+       unit 0 {
+         family ethernet-switching {
+           interface-mode access;
+          {% for vlanlist in iflist.vlans %}
+           vlan members {{ vlanlist }};
+          {% endfor %}
+         }
+       }
+       {% else %}
+       {% endif %}
+     }
+    {% endfor %}
+}
+switch-options {
+    vtep-source-interface lo0.0;
+    route-distinguisher {{ property_sets.fabricbgp[hostname].rid }}:65534;
+    vrf-target target:100:100;
+}
+vlans {
+    {% for vids in vlanlst %}
+ vn{{ "{0:0=4d}".format(vids) }} {
+   vlan-id {{ vids }};
+   vxlan {
+     vni 1{{ "{0:0=4d}".format(vids) }};
+   }
+ }
+    {% endfor %}
+}
+protocols {
+  evpn {
+    encapsulation vxlan;
+    {% if property_sets.noderole[hostname] == "leaf" %}
+    default-gateway do-not-advertise;
+    {% else %}
+    default-gateway no-gateway-community;
+    {% endif %}
+    vni-options {
+      {% for vid in vlanlst %}
+      vni 1{{ "{0:0=4d}".format(vid) }} {
+        vrf-target target:1{{ "{0:0=4d}".format(vid) }}:1
+      }
+      {% endfor %}
+    }
+    extended-vni-list all;
+  }
+}
+  {% endif %}
+ {% endfor %}
+{% endif %}

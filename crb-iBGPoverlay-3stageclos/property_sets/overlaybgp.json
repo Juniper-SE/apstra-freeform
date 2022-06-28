@@ -1,4 +1,4 @@
 {
-    "model": "crb",
-    "bgpasn": "64512"
+    "bgpasn": "64512",
+    "model": "crb"
 }

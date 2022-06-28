@@ -1,0 +1,127 @@
+{
+    "spine1": [
+      {
+        "ifname": "xe-0/0/0",
+        "vlans": [
+          101,
+          102
+        ],
+        "mode": "trunk"
+      },
+      {
+        "lagif": "ae12",
+        "ifname": "xe-0/0/1",
+        "mode": "lagmbr"
+      },
+      {
+        "sysid": "01:02:03:00:00:02",
+        "ifname": "ae12",
+        "lagesi": "00:01:01:00:00:00:00:00:01:02",
+        "vlans": [
+          111
+        ],
+        "mode": "trunk"
+      }
+    ],
+    "spine2": [
+      {
+        "ifname": "xe-0/0/0",
+        "vlans": [
+          101,
+          102
+        ],
+        "mode": "trunk"
+      },
+      {
+        "lagif": "ae12",
+        "ifname": "xe-0/0/1",
+        "mode": "lagmbr"
+      },
+      {
+        "sysid": "01:02:03:00:00:02",
+        "ifname": "ae12",
+        "lagesi": "00:01:01:00:00:00:00:00:01:02",
+        "vlans": [
+          111
+        ],
+        "mode": "trunk"
+      }
+    ],
+    "leaf1": [
+      {
+        "ifname": "ge-0/0/0",
+        "vlans": [
+          100,
+          101,
+          102
+        ],
+        "mode": "trunk"
+      },
+      {
+        "ifname": "ge-0/0/1",
+        "vlans": [
+          100
+        ],
+        "mode": "access"
+      },
+      {
+        "ifname": "ge-0/0/2",
+        "vlans": [
+          100,
+          103,
+          104
+        ],
+        "mode": "trunk"
+      },
+      {
+        "lagif": "ae11",
+        "ifname": "ge-0/0/3",
+        "mode": "lagmbr"
+      },
+      {
+        "sysid": "01:02:03:00:00:11",
+        "ifname": "ae11",
+        "lagesi": "00:01:01:00:00:00:00:00:01:11",
+        "vlans": [
+          111,
+          112
+        ],
+        "mode": "trunk"
+      }
+    ],
+    "vnid": 20,
+    "leaf2": [
+      {
+        "ifname": "ge-0/0/0",
+        "vlans": [
+          101,
+          102
+        ],
+        "mode": "trunk"
+      },
+      {
+        "ifname": "ge-0/0/1",
+        "vlans": [
+          100
+        ],
+        "mode": "access"
+      },
+      {
+        "ifname": "ge-0/0/2",
+        "vlans": [
+          100,
+          104
+        ],
+        "mode": "trunk"
+      },
+      {
+        "sysid": "01:02:03:00:00:12",
+        "ifname": "ae12",
+        "lagesi": "00:01:01:00:00:00:00:00:01:12",
+        "vlans": [
+          111
+        ],
+        "mode": "access"
+      }
+    ]
+  }
