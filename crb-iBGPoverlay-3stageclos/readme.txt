@@ -75,9 +75,9 @@ j2 templates
 - junos_overlaycrb.jinja
 
 
-Updates to main jinja: junos_configuration.jinja
+: Updates to be added to main jinja :
 
-name: junos_overlaycrb.jinja
+name: junos_configuration.jinja
 ///////////////////////////////////////////////////////////////////////////
 {% block underlaybgp %}
 {%- include "junos_underlaybgp.jinja" %}
@@ -86,6 +86,10 @@ name: junos_overlaycrb.jinja
 {% block overlaycrb %}
 {%- include "junos_overlaycrb.jinja" %}
 {% endblock overlaycrb %}
+
+{% block crbvxlan %}
+{%- include "junos_crbvxlan.jinja" %}
+{% endblock crbvxlan %}
 ///////////////////////////////////////////////////////////////////////////
 
 
