@@ -77,7 +77,6 @@ j2 templates
 
 
 : Updates to be added to main jinja :
-
 name: junos_configuration.jinja
 ///////////////////////////////////////////////////////////////////////////
 {% block underlaybgp %}
