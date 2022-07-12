@@ -1,0 +1,58 @@
+{% set this_router=hostname %}
+policy-options {
+  policy-statement send-direct {
+      term 1 {
+          from protocol direct;
+          then accept;
+      }
+  }
+{% for interface_name, iface in interfaces.iteritems() %}
+{% set link_med = iface.link_tags[0] %}
+{#
+  this may create multiple identical policy-statements, but JunOS is smart enough
+  to squash them.
+#}
+  policy-statement add-med-{{ link_med }} {
+          from {
+            route-filter 0.0.0.0/0 longer;
+          }
+          then {
+            metric add {{ link_med }};
+          }
+          then  {
+            accept
+          }
+  }
+{% endfor %}
+}
+
+protocols {
+  lldp {
+      port-id-subtype interface-name;
+      port-description-type interface-description;
+      neighbour-port-info-display port-id;
+      interface all;
+  }
+  replace: rstp {
+    bridge-priority 0;
+    bpdu-block-on-edge;
+  }
+
+  bgp {
+    group external-peers {
+      type external;
+      export send-direct;
+      {% for interface_name, iface in interfaces.iteritems() %}
+      neighbor {{ iface.neighbor_interface.ipv4_address }} {
+        {% set peer_hostname=iface.neighbor_interface.system_hostname %}
+        peer-as {{ property_sets.data[peer_hostname]['asn'] }};
+        export add-med-{{ iface.link_tags[0] }};
+      }
+      {% endfor %}
+    }
+  }
+}
+
+routing-options {
+  autonomous-system  {{ property_sets.data[this_router]['asn'] }};
+}
