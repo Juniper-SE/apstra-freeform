@@ -1,7 +1,7 @@
 {% set Rendered_VNs = {} %}
-{% for ps_tag in property_sets.esxTrunk %}
+{% for ps_tag in property_sets.esxTrunks %}
   {% for interface_name, iface in interfaces.iteritems() %}     {# iterate through the links in the Blueprint#}
-    {% if ((iface.link_tags) and (ps_tag|lower in iface.link_tags)) %}
+    {% if ((iface.link_tags) and (ps_tag in iface.link_tags)) %}
   
 interfaces {
   {{interface_name}} {
@@ -11,7 +11,7 @@ interfaces {
           interface-mode trunk
           vlan {
             members [
-                {% for vlan_id in property_sets.esxTrunk[ps_tag] %}
+                {% for vlan_id in property_sets.esxTrunks[ps_tag] %}
                     {% set _ = Rendered_VNs.update({vlan_id: ps_tag}) %}
                     vn{{ vlan_id }}
                 {% endfor %}
@@ -30,7 +30,7 @@ irb {
     unit {{ vn }} {
         family inet {
             mtu 9000;
-            address {{ property_sets.esxTrunk[tag][vn]['gateway'] }};
+            address {{ property_sets.esxTrunks[tag][vn]['gateway'] }};
         }
     }
     {% endfor %}
@@ -41,7 +41,7 @@ vlans {
 {% set tag = Rendered_VNs[vn] %}
   vn{{ vn }} {
     vlan-id {{ vn }};
-    description {{ property_sets.esxTrunk[tag][vn]['description'] }}-{{ vn }};
+    description {{ property_sets.esxTrunks[tag][vn]['description'] }}-{{ vn }};
     l3-interface irb.{{ vn }};
   }
   {% endfor %}
