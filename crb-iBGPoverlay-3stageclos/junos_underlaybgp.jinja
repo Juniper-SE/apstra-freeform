@@ -21,7 +21,7 @@ protocols {
          }
          local-as {{ property_sets.fabricbgp[hostname].localas }};
  {% for intf,iface in interfaces.items() %}
-   {% if iface.role == 'internal' %}
+   {% if iface.role == 'spine_leaf' %}
          neighbor {{iface.neighbor_interface.ipv4_address}} {
          description "bgp to {{iface.neighbor_interface.system_hostname}}";
          peer-as {{ property_sets.fabricbgp[iface.neighbor_interface.system_hostname].localas }};
