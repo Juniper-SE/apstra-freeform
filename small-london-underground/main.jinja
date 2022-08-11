@@ -1,3 +1,8 @@
+{# This is the main.jinja config template.  
+This template is the main template that includes other templates.   
+The template is very simple and straight forward but uses the  "include external_template" 
+construct that will allow you to segment your config templates into unique files and include them. #}
+
 {% block system %}
 {%- include "system.jinja" %}
 {% endblock system %}
