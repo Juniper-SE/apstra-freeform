@@ -26,6 +26,14 @@ class TestSession(object):
             self.__aos_sdk_clients["two_stage_l3_clos"].login()
         return self.__aos_sdk_clients["two_stage_l3_clos"]
 
+    def get_aos_sdk_freeform(self):
+        if "freeform" not in self.__aos_sdk_clients:
+            self.__aos_sdk_clients["freeform"] = CLIENT_REGISTRY[
+                "freeform"
+            ].Client(self.config["url"], verify_certificates=False)
+            self.__aos_sdk_clients["freeform"].login()
+        return self.__aos_sdk_clients["freeform"]
+
     def get_aos_sdk_generator(self):
         if not self.__aos_sdk_generator:
             self.__aos_sdk_generator = g

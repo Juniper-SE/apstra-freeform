@@ -37,5 +37,5 @@ docker exec -it tfl-demo bash
 $ cd /project
 $ source /demo-venv/bin/activate
 $ pip install -r requirements.txt
-$ PYTHONPATH=. py.test -s -v -p no:logging --alluredir allurereport --pdb --config-path=config.yaml tests/test_tfl_demo.py
+$ PYTHONPATH=. py.test -s -v -p no:logging --pdb --config-path=config.yaml tests/test_tfl_demo.py
 ```
