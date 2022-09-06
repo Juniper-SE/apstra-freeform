@@ -173,12 +173,12 @@ def build_static_host_mappings_config_template(links_map):
     static_mapping_str = ""
     for host, ips in sorted(links_map.items(), key=lambda i: i[0]):
         ips_str = " ".join(ips)
-        static_mapping_str += "  %s [%s];\n" % (slugify(host), ips_str)
+        static_mapping_str += "        %s [%s];\n" % (slugify(host), ips_str)
 
     content = """
-static-host-mapping {
+    static-host-mapping {
 %s
-}
+    }
 """ % static_mapping_str
 
     payload.append(
