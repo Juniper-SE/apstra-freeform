@@ -10,7 +10,7 @@ def test_print_apstra_version(aos_sdk_steps):
     assert aos_sdk_steps.print_apstra_version()
 
 
-@pytest.mark.skip(reason="Be careful with this one...")
+@pytest.mark.skip(reason="Skipped by default, be careful with this one...")
 @pytest.mark.dependency()
 def test_remove_existing_resources(aos_sdk_steps):
     """
