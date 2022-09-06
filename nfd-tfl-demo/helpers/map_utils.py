@@ -1,6 +1,10 @@
+"""
+Utility functions to convert latitude and longitude to screen X and Y coordinates
+"""
 import math
 
-# (x, y, lat, long) for two reference points defining an area covering the map
+# (x, y, lat, long) for two reference points defining an area covering the London
+# tube map.
 p0 = (0, 0, 51.6880, -0.5754)
 p1 = (15000, 13000, 51.37601, 0.24967)
 
@@ -17,15 +21,17 @@ def lat_long_to_global_x_y(lat, lng):
     return int(x), int(y)
 
 
+# Calculate global x and y for the two reference points. Doing it here since this
+# is a one-off operation and we can reuse these values for each point we later want
+# to place on screen
+p0_gx, p0_gy = lat_long_to_global_x_y(p0[2], p0[3])
+p1_gx, p1_gy = lat_long_to_global_x_y(p1[2], p1[3])
+
+
 def lat_long_to_screen_x_y(lat, lng):
     """
     Converts lat and lng coordinates to SCREEN X and Y positions
     """
-    # Calculate global x and y for the two reference points. Slightly
-    # suboptimal, since this calculation can be done only once and cached
-    p0_gx, p0_gy = lat_long_to_global_x_y(p0[2], p0[3])
-    p1_gx, p1_gy = lat_long_to_global_x_y(p1[2], p1[3])
-
     # now calculate x and y for the current point
     gx, gy = lat_long_to_global_x_y(lat, lng)
 

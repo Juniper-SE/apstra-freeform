@@ -1,3 +1,6 @@
+"""
+Helper functions to generate payloads to be sent to Apstra via batch APIs.
+"""
 import os
 
 from collections import defaultdict
@@ -52,6 +55,10 @@ def update_adjacency_list(node_a, node_b):
 
 
 def build_nodes_payload(tfl_json, device_profile_id):
+    """
+    Payload to populate all nodes onto the canvas, one node per station. Hostnames
+    are normalized with slugify
+    """
     payload = []
     for station in tfl_json['stations']:
         payload.append(
@@ -72,11 +79,15 @@ def build_nodes_payload(tfl_json, device_profile_id):
 
 
 def build_links_payload(tfl_json):
+    """
+    Payload to populate link objects. Here vEX is assumed
+    """
     payload = []
     # i4n: interface for node. shorter alias to function to get next
     # available interface, since we call it often inline later
     i4n = get_next_available_interface_for_node_system
-    iface_prefix = 'ge-0/0/'
+
+    iface_prefix = 'ge-0/0/' # assume vEX
     for connection in tfl_json['connections']:
         c_from = connection['from']
         c_to = connection['to']
@@ -86,6 +97,8 @@ def build_links_payload(tfl_json):
             # with source and dst in reverse order. Nothing to do here.
             continue
 
+        # get next available /31 subnet and later assign the two IP addresses
+        # to both endpoints of this link
         link_addr = next(link_subnet)
         payload.append(
             {
@@ -124,7 +137,11 @@ def build_links_payload(tfl_json):
 
 
 def build_config_templates_payload():
-
+    """
+    Payload to create config-templates object
+    """
+    # Config templates are version-controlled in this repo. We take the content
+    # of those files and create them into the blueprint.
     template_files = ['main', 'system', 'interfaces', 'protocols']
     payload = []
     for template_file in template_files:
@@ -147,6 +164,11 @@ def build_config_templates_payload():
 
 
 def build_config_templates_assignments_payload(tfl_json):
+    """
+    Payload to define assignment of config templates to each station/node of the
+    topology
+    """
+    # simply we have the same config-template for every node
     assignments = {}
     for station in tfl_json['stations']:
         assignments.update({
@@ -164,6 +186,20 @@ def build_config_templates_assignments_payload(tfl_json):
 
 
 def build_property_sets_payload(tfl_json):
+    """
+    Property sets will be the repository for ASN numbers and loopback IPs of each
+    node in the topology, keyed by hostname, e.g.:
+    {
+      "cannon-street": {
+        "asn": 241,
+        "loopback": "10.0.0.237"
+      },
+      "kentish-town": {
+        "asn": 134,
+        "loopback": "10.0.0.130"
+      },
+    ...
+    """
     ps_values = {}
     for station in tfl_json['stations']:
         loopback = next(loopback_subnet)

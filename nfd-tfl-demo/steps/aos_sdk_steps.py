@@ -12,41 +12,37 @@ from helpers.map_utils import lat_long_to_screen_x_y
 
 
 class Context(object):
+    """
+    Will be used to keep state between testcases
+    """
     def __init__(self):
         self.blueprint_id = None
         self.device_profiles = None
 
 
 class AosSdkSteps(object):
+    """
+    Contains actions that the test logic can call to change Apstra configuration,
+    such as blueprints creation or modifications.
+    """
     def __init__(self, testsession):
         self.client = testsession.get_aos_sdk_freeform()
         self.generator = testsession.get_aos_sdk_generator()
         self.context = Context()
 
     def delete_blueprints(self):
-        """
-        Delete a blueprint with given id.
-        :param bp_id: id of the blueprint
-        """
         for bp_id in [bp['id'] for bp in self.client.blueprints.list()]:
             self.client.blueprints[bp_id].delete()
 
 
     def print_apstra_version(self):
-        """ Print Apstra version  """
         return self.client.version.get()
 
     def create_blueprint(self, data):
-        """
-        Create a blueprint with given name and settings.
-        :param data: dictionary with blueprint settings
-        (id, template id, ref design, etc.)
-        :return: blueprint as a dictionary
-        """
         bp_name = data['id']
         data["label"] = bp_name
         self.context.blueprint_id = data['id']
-        return self.client.blueprints.create(data)
+        self.client.blueprints.create(data)
 
     def import_device_profiles(self, device_profiles):
         blueprint_id = self.context.blueprint_id
@@ -80,13 +76,21 @@ class AosSdkSteps(object):
         batch_api_payload += build_property_sets_payload(tfl_json)
 
         client = self.client.blueprints[blueprint_id]
+        # Sending all the payloads at once via batch API, saves time :-)
         client.batch(batch_api_payload)
 
     def update_diagram_from_geo_location(self, tfl_json):
-        """ Creates/updates user preferences (Topology diagrams)
-            for the freeform blueprint based on latitude/longitude
-            information in tfl.json.
         """
+        By default, nodes and links are placed by the GUI following its internal
+        logic. However, we can override this by placing each node based on the
+        geographic coordinates specified in the input file. For this, we leverage
+        some helper function to convert latitude and longitude information onto
+        X and Y coordinates that our screen can handle.
+
+        Also, the "zone" information for each station can be used to assign a color
+        - hotter to colder colors moving out from the center of the map.
+        """
+        # Blueprint may take some time to build, waiting a little..
         time.sleep(10)
         blueprint_id = self.context.blueprint_id
         client = self.client.blueprints[blueprint_id]
