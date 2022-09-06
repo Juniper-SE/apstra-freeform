@@ -39,7 +39,7 @@
   <p align="center">
     Config Templates and Property Sets for Juniper Apstra Freeform
     <br />
-    <a href="https://www.juniper.net/documentation/product/us/en/apstra/"><strong>Explore the Juniper Apstra Docs »</strong></a>
+    <a href="https://www.juniper.net/documentation/us/en/software/apstra4.1/apstra-user-guide/topics/topic-map/freeform.html"><strong>Explore the Juniper Apstra Docs »</strong></a>
     <br />
     <br />
     <a href="https://cloudlabs.apstra.com/">Start your own Demo</a>
