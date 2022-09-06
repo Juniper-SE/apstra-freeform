@@ -1,3 +1,9 @@
+"""
+This module implements the necessary steps to configure Apstra to define and
+build the Freeform blueprint modeling the London subway system by leveraging
+AOS SDK client.
+"""
+
 import time
 from collections import defaultdict
 
