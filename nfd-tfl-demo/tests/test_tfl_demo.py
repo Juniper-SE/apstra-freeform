@@ -9,9 +9,10 @@ def gen_name(prefix):
 def test_print_apstra_version(aos_sdk_steps):
      assert aos_sdk_steps.print_apstra_version()
 
-# @pytest.mark.dependency()
-# def test_remove_existing_resources(aos_sdk_steps):
-#      aos_sdk_steps.delete_blueprint('freeform_blueprint')
+@pytest.mark.skip(reason="Be careful with this one...")
+@pytest.mark.dependency()
+def test_remove_existing_resources(aos_sdk_steps):
+     aos_sdk_steps.delete_blueprints()
 
 @pytest.mark.dependency()
 def test_create_blueprint(aos_sdk_steps):
@@ -32,5 +33,5 @@ def test_populate_blueprint(aos_sdk_steps, tfl_json):
      aos_sdk_steps.populate_blueprint(tfl_json)
 
 @pytest.mark.dependency()
-def test_beautify_map(aos_sdk_steps, tfl_json):
-     aos_sdk_steps.rearrange_map_nodes_from_geo_loc(tfl_json)
+def test_update_diagram_from_geo_location(aos_sdk_steps, tfl_json):
+     aos_sdk_steps.update_diagram_from_geo_location(tfl_json)

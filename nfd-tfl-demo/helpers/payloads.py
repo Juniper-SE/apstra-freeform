@@ -13,7 +13,7 @@ loopback_subnet = IPNetwork("10.0.0.0/16").subnet(32)
 # dictionary mapping station ID and vDUT interfaces currently used for it.
 device_interfaces_in_use = defaultdict(list)
 
-# dictionary containing the list of adjacent station for a given station
+# dictionary containing the list of adjacent stations for a given station
 adjacency_list = defaultdict(list)
 
 
@@ -188,3 +188,4 @@ def build_property_sets_payload(tfl_json):
         }
     ]
     return payload
+

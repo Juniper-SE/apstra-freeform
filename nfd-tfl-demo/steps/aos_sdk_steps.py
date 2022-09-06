@@ -8,12 +8,7 @@ from helpers.payloads import (
     build_property_sets_payload
 )
 
-#from helpers.decorators import step
-#from helpers.waits import wait_assert
-#
-# from aos.sdk.utils import with_async_state
-# from netaddr import IPNetwork
-
+from helpers.map_utils import lat_long_to_screen_x_y
 
 
 class Context(object):
@@ -28,13 +23,14 @@ class AosSdkSteps(object):
         self.generator = testsession.get_aos_sdk_generator()
         self.context = Context()
 
-    # def delete_blueprint(self, bp_id):
-    #     """
-    #     Delete a blueprint with given id.
-    #     :param bp_id: id of the blueprint
-    #     """
-    #     self.client.blueprints[bp_id].delete()
-    #     time.sleep(1)
+    def delete_blueprints(self):
+        """
+        Delete a blueprint with given id.
+        :param bp_id: id of the blueprint
+        """
+        for bp_id in [bp['id'] for bp in self.client.blueprints.list()]:
+            self.client.blueprints[bp_id].delete()
+
 
     def print_apstra_version(self):
         """ Print Apstra version  """
@@ -86,5 +82,23 @@ class AosSdkSteps(object):
         client = self.client.blueprints[blueprint_id]
         client.batch(batch_api_payload)
 
-    def rearrange_map_nodes_from_geo_loc(self, tfl_json):
-        pass
+    def update_diagram_from_geo_location(self, tfl_json):
+        """ Creates/updates user preferences (Topology diagrams)
+            for the freeform blueprint based on latitude/longitude
+            information in tfl.json.
+        """
+        time.sleep(10)
+        blueprint_id = self.context.blueprint_id
+        client = self.client.blueprints[blueprint_id]
+
+        system_labels_to_ids = {
+            s['label']: s['id'] for s in client.systems.list()}
+
+        new_prefs = {}
+        for station in tfl_json['stations']:
+            lat, lng = float(station['latitude']), float(station['longitude'])
+            x, y = lat_long_to_screen_x_y(lat, lng)
+            node_id = system_labels_to_ids[station['name']]
+            new_prefs[node_id] = '[%s, %s, %s]' % (x, y, station['zone'])
+
+        client.preferences.update(data={'preferences': {'userData': new_prefs}})
