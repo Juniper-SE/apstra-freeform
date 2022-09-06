@@ -163,6 +163,38 @@ def build_config_templates_payload():
     return payload
 
 
+def build_static_host_mappings_config_template(links_map):
+    """
+    Create the config_template for static host mapping separately, since it's
+    a bit large and generated from different input data (cabling map)
+    """
+    payload = []
+
+    static_mapping_str = ""
+    for host, ips in sorted(links_map.items(), key=lambda i: i[0]):
+        ips_str = " ".join(ips)
+        static_mapping_str += "  %s [%s];\n" % (slugify(host), ips_str)
+
+    content = """
+static-host-mapping {
+%s
+}
+""" % static_mapping_str
+
+    payload.append(
+        {
+            'method': 'POST',
+            'path': '/config-templates',
+            'lid': '##static-host-mappings##',
+            'payload': {
+                'label': 'static_host_mapping.jinja',
+                'text': content,
+                'tags': [],
+            }
+        }
+    )
+    return payload
+
 def build_config_templates_assignments_payload(tfl_json):
     """
     Payload to define assignment of config templates to each station/node of the

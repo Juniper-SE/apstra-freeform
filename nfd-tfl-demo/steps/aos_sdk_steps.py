@@ -1,11 +1,13 @@
 import time
+from collections import defaultdict
 
 from helpers.payloads import (
     build_nodes_payload,
     build_links_payload,
     build_config_templates_payload,
     build_config_templates_assignments_payload,
-    build_property_sets_payload
+    build_property_sets_payload,
+    build_static_host_mappings_config_template
 )
 
 from helpers.map_utils import lat_long_to_screen_x_y
@@ -79,6 +81,25 @@ class AosSdkSteps(object):
         # Sending all the payloads at once via batch API, saves time :-)
         client.batch(batch_api_payload)
 
+    def create_static_host_mappings(self):
+        # Blueprint may take some time to build, waiting a little..
+        time.sleep(10)
+        batch_api_payload = []
+        blueprint_id = self.context.blueprint_id
+        client = self.client.blueprints[blueprint_id]
+
+        links = self.client.request('/blueprints/{}/experience/web/links'
+                                .format(blueprint_id), method='get')
+
+        links_map = defaultdict(list)
+        for link in links['items']:
+            for endpoint in link['endpoints']:
+                links_map[endpoint['system']['label']].append(
+                    endpoint['interface']['ipv4_addr'].split('/')[0])
+
+        batch_api_payload += build_static_host_mappings_config_template(links_map)
+        client.batch(batch_api_payload)
+
     def update_diagram_from_geo_location(self, tfl_json):
         """
         By default, nodes and links are placed by the GUI following its internal
@@ -90,8 +111,6 @@ class AosSdkSteps(object):
         Also, the "zone" information for each station can be used to assign a color
         - hotter to colder colors moving out from the center of the map.
         """
-        # Blueprint may take some time to build, waiting a little..
-        time.sleep(10)
         blueprint_id = self.context.blueprint_id
         client = self.client.blueprints[blueprint_id]
 

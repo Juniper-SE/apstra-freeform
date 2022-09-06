@@ -18,6 +18,7 @@ def test_remove_existing_resources(aos_sdk_steps):
     """
     aos_sdk_steps.delete_blueprints()
 
+
 @pytest.mark.dependency()
 def test_create_blueprint(aos_sdk_steps):
     """
@@ -51,6 +52,14 @@ def test_populate_blueprint(aos_sdk_steps, tfl_json):
     batch APIs
     """
     aos_sdk_steps.populate_blueprint(tfl_json)
+
+
+@pytest.mark.dependency()
+def test_create_static_host_mappings(aos_sdk_steps):
+    """
+    This config template is a bit special, since it's created by querying AOS
+    """
+    aos_sdk_steps.create_static_host_mappings()
 
 @pytest.mark.dependency()
 def test_update_diagram_from_geo_location(aos_sdk_steps, tfl_json):
