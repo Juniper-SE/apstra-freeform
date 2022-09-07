@@ -1,0 +1,63 @@
+{% set this_router = hostname %}
+{% set med_tags = namespace(meds=[]) %}
+policy-options {
+    policy-statement send-direct {
+        term 1 {
+              from protocol direct;
+              then accept;
+        }
+    }
+
+
+{% for interface_name, iface in interfaces.iteritems() %}
+{#
+  First, building a list of link_meds so we can later deduplicate the
+  add-med-<value> policy statements
+#}
+    {% do med_tags.meds.extend(iface.link_tags) %}
+{% endfor %}
+
+{% for link_med in med_tags.meds|sort|unique %}
+    policy-statement add-med-{{ link_med }} {
+        from {
+            route-filter 0.0.0.0/0 longer;
+        }
+        then {
+            metric add {{ link_med }};
+        }
+        then  {
+            accept
+        }
+    }
+{% endfor %}
+}
+
+protocols {
+    lldp {
+        port-id-subtype interface-name;
+        port-description-type interface-description;
+        neighbour-port-info-display port-id;
+        interface all;
+    }
+    replace: rstp {
+        bridge-priority 0;
+        bpdu-block-on-edge;
+    }
+    bgp {
+        group external-peers {
+            type external;
+            export send-direct;
+{% for interface_name, iface in interfaces.iteritems() if iface.get('ipv4_address') and iface.get('neighbor_interface', {}).get('ipv4_address') %}
+    {% set peer_hostname=iface.neighbor_interface.system_hostname %}
+            neighbor {{ iface.neighbor_interface.ipv4_address }} {
+                peer-as {{ property_sets.data[peer_hostname]['asn'] }};
+                export add-med-{{ iface.link_tags[0] }};
+            }
+{% endfor %}
+        }
+    }
+}
+
+routing-options {
+    autonomous-system  {{ property_sets.data[this_router]['asn'] }};
+}
