@@ -1,0 +1,6 @@
+[submodule "apstra-ff-crb-ott-dci"]
+	path = apstra-ff-crb-ott-dci
+	url = https://github.com/aninchat/apstra-ff-crb-ott-dci
+[submodule "apstra-ff-crb"]
+	path = apstra-ff-crb
+	url = https://github.com/aninchat/apstra-ff-crb
