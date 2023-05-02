@@ -1,0 +1,107 @@
+{
+    "vlan32": {
+        "vxlan_id": 30002,
+        "description": "red_vxlan_30002",
+        "vrf_name": "red",
+        "systems": {
+            "spine1": {
+                "ipv4_address": null,
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "spine2": {
+                "ipv4_address": "10.0.32.2/24",
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "leaf3": {
+                "ipv4_address": null,
+                "native_interfaces": [
+                    "et-0/0/3"
+                ],
+                "tagged_interfaces": []
+            }
+        },
+        "vlan_id": 32,
+        "ipv4_virtual_gateway_address": null
+    },
+    "vlan31": {
+        "vxlan_id": 30001,
+        "description": "red_vxlan_30001",
+        "vrf_name": "red",
+        "systems": {
+            "spine1": {
+                "ipv4_address": "10.0.31.1/24",
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "spine2": {
+                "ipv4_address": "10.0.31.2/24",
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "leaf1": {
+                "ipv4_address": null,
+                "native_interfaces": [],
+                "tagged_interfaces": [
+                    "et-0/0/3",
+                    "ae0"
+                ]
+            },
+            "leaf2": {
+                "ipv4_address": null,
+                "native_interfaces": [],
+                "tagged_interfaces": [
+                    "et-0/0/3",
+                    "ae0"
+                ]
+            }
+        },
+        "vlan_id": 31,
+        "ipv4_virtual_gateway_address": "10.0.31.254"
+    },
+    "vlan30": {
+        "vxlan_id": 30000,
+        "description": "blue_vxlan_30000",
+        "vrf_name": "blue",
+        "systems": {
+            "spine1": {
+                "ipv4_address": "10.0.30.1/24",
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "spine2": {
+                "ipv4_address": "10.0.30.2/24",
+                "native_interfaces": [],
+                "tagged_interfaces": []
+            },
+            "leaf1": {
+                "ipv4_address": null,
+                "native_interfaces": [
+                    "ae0"
+                ],
+                "tagged_interfaces": [
+                    "et-0/0/3"
+                ]
+            },
+            "leaf3": {
+                "ipv4_address": null,
+                "native_interfaces": [],
+                "tagged_interfaces": [
+                    "et-0/0/3"
+                ]
+            },
+            "leaf2": {
+                "ipv4_address": null,
+                "native_interfaces": [
+                    "ae0"
+                ],
+                "tagged_interfaces": [
+                    "et-0/0/3"
+                ]
+            }
+        },
+        "vlan_id": 30,
+        "ipv4_virtual_gateway_address": "10.0.30.254"
+    }
+}
